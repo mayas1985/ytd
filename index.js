@@ -6,7 +6,8 @@ AWS.config.update({region: regionp });
 const logger = require('winston'),
 winstonCloudWatch = require('winston-cloudwatch');
 
-logger.add(new winstonCloudWatch({
+var self = logger.add(new winstonCloudWatch({
+  name: 'awslogger',
   logGroupName: 'YoutubeDownloader',
   logStreamName: new Date().toDateString(),
   awsRegion: regionp
@@ -94,4 +95,19 @@ function deleteSqsMessage(message){
 	 });
 }
 
+process.on('uncaughtException', function(err) {
+	console.log(err)
+    logger.log('error', 'Fatal uncaught exception crashed cluster', err, function(err, level, msg, meta) {
+        process.exit(1);
+    });
+});
+
 exports.readSqs(onRecieveMessage);
+
+console.log('flushign')
+// flushes the logs and clears setInterval
+var transport = self.transports.find((t) => t.name === 'awslogger')
+console.log(transport)
+transport.kthxbye(function() {
+  console.log('exiting');
+});
