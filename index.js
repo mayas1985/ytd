@@ -21,11 +21,11 @@ exports.handler = function(url, message) {
   
   const s3 = new AWS.S3({apiVersion: '2006-03-01'});
   const passtrough = new stream.PassThrough();
-  const dl = youtubedl(url, ['--format=best[ext=mp4]'], {maxBuffer: Infinity});
+  const dl = youtubedl(url, ['--format=bestvidoe+bestaudio'], {maxBuffer: Infinity});
   dl.once('error', (err) => {
     logger.error(JSON.stringify(err));
   });
-  key = message.MessageId + '.mp4';
+  key = 'test.mkv';//message.MessageId + '.mp4';
   const upload = new AWS.S3.ManagedUpload({
     params: {
       Bucket: 'deletelaterfortesting',
@@ -41,6 +41,7 @@ exports.handler = function(url, message) {
 	   if (err) {
 		logger.error(`error while upload send ${JSON.stringify(err)}` );
 	  } else {
+		  logger.info('video uploaded to s3');
 		deleteSqsMessage(message);
 	  }
   });
@@ -96,18 +97,20 @@ function deleteSqsMessage(message){
 }
 
 process.on('uncaughtException', function(err) {
-	console.log(err)
-    logger.log('error', 'Fatal uncaught exception crashed cluster', err, function(err, level, msg, meta) {
+	console.log(err);
+	logger.log('error', 'Fatal uncaught exception crashed cluster', err, function(err, level, msg, meta) {
         process.exit(1);
     });
 });
 
-exports.readSqs(onRecieveMessage);
 
-console.log('flushign')
-// flushes the logs and clears setInterval
-var transport = self.transports.find((t) => t.name === 'awslogger')
-console.log(transport)
-transport.kthxbye(function() {
-  console.log('exiting');
-});
+//exports.readSqs(onRecieveMessage);
+exports.handler('https://www.youtube.com/watch?v=Pkh8UtuejGw', null);
+
+// console.log('flushing')
+// // flushes the logs and clears setInterval
+// var transport = self.transports.find((t) => t.name === 'awslogger')
+// console.log(transport)
+// transport.kthxbye(function() {
+  // console.log('exiting');
+// });
