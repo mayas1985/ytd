@@ -51,7 +51,7 @@ def download_video(url, filename):
 
 def get_url(message):
 	jsn = json.loads(message['Body'])
-	url = jsn['Url']
+	url = jsn['url']
 	return url
 	# receipt_handle = message['ReceiptHandle']
 	
