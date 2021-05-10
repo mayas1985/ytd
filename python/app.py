@@ -43,10 +43,10 @@ def progress_hook(d):
 		logger.info(d['filename'] + " " + d['_percent_str']+" " +d['_eta_str'])
 
 def download_video(url, filename):
-	#url = 'https://www.youtube.com/watch?v=LXb3EKWsInQ'
+	#url = 'https://www.youtube.com/watch?v=D_2DBLAt57c'
 	ydl_opts = {
 		#"format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio",
-		"format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+		"format": "bestvideo[height<=?1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
 		#"format": "best[ext=mp4]",
 		'progress_hooks': [progress_hook],
 		"outtmpl": filename,
