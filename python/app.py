@@ -36,7 +36,7 @@ def read_sqs(queue_url):
 	else:	
 		return None
 
-def progress_hook(self, d):
+def progress_hook(d):
 	if d['status'] == 'finished':
 		logger.info('progresshook - finished download')
 	if d['status'] == 'downloading':
