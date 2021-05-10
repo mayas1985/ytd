@@ -35,13 +35,20 @@ def read_sqs(queue_url):
 		return response['Messages'][0]
 	else:	
 		return None
-		
+
+def progress_hook(self, d):
+	if d['status'] == 'finished':
+		logger.info('progresshook - finished download')
+	if d['status'] == 'downloading':
+		logger.info(d['filename'] + " " + d['_percent_str']+" " +d['_eta_str'])
 
 def download_video(url, filename):
-	url = 'https://www.youtube.com/watch?v=LXb3EKWsInQ'
+	#url = 'https://www.youtube.com/watch?v=LXb3EKWsInQ'
 	ydl_opts = {
 		#"format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio",
-		"format": "best[ext=mp4]",
+		"format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]",
+		#"format": "best[ext=mp4]",
+		'progress_hooks': [progress_hook],
 		"outtmpl": filename,
 		"merge-output-format": "mp4"
 	}
