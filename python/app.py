@@ -51,7 +51,7 @@ def download_video(url, filename):
 
 def get_url(message):
 	jsn = json.loads(message['Body'])
-	url = jsn['url']
+	url = jsn['Url']
 	return url
 	# receipt_handle = message['ReceiptHandle']
 	
@@ -94,19 +94,23 @@ def delete_message(receipt_handle):
 	logger.info(response)
 
 while(True):
-	msg = read_sqs(queue_url)
-	if msg is not None:
-		logger.info(msg)
-		url = get_url(msg)
-		download_video(url, get_video_filename(msg))
-		logger.info('downloaded video')
-		validate_file(get_video_filename(msg))
+	try:
+		msg = read_sqs(queue_url)
+		if msg is not None:
+			logger.info(msg)
+			url = get_url(msg)
+			download_video(url, get_video_filename(msg))
+			logger.info('downloaded video')
+			validate_file(get_video_filename(msg))
 
-		with open(get_video_filename(msg), "rb") as f:
-			s3.upload_fileobj(f, bucket_name, get_video_filename(msg))
-		logger.info('s3 upload video')
-		delete_message(msg['ReceiptHandle'])
-	else:
-		logger.info('no msg in queue')
+			with open(get_video_filename(msg), "rb") as f:
+				s3.upload_fileobj(f, bucket_name, get_video_filename(msg))
+			logger.info('s3 upload video')
+			delete_message(msg['ReceiptHandle'])
+		else:
+			logger.info('no msg in queue')
+	except Exception as e: 
+		print(e)
+		logger.info(e)
 	time.sleep(30)
 
