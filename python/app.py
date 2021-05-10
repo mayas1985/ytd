@@ -12,8 +12,8 @@ logger.addHandler(watchtower.CloudWatchLogHandler(log_group='youtubedownloader',
 # Create SQS client
 sqs = boto3.client('sqs')
 s3 = boto3.client('s3')
-queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/temp-sqs'
-bucket_name = 'deletelaterfortesting'
+queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/ytd-request-queue'
+bucket_name = 'mealcast-video-ouput-dev'
 print(queue_url)
 
 def read_sqs(queue_url):
