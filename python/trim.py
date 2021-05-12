@@ -36,13 +36,13 @@ while(True):
 			input_bucket, input_key, input_filename = get_bucket_and_key_filepart(input_url)
 			output_bucket, output_key, output_filename = get_bucket_and_key_filepart(output_url)
 			
-			# with open(input_filename, 'wb') as f:
-			# 	s3.download_fileobj(input_bucket, input_key, f)
-			# logger.info('s3 downloaded video')
-			# crop(starttime,endtime,input_filename, output_filename)
-			# logger.info('Cropping successfully done')
-			# with open(output_filename, "rb") as f:
-			# 	s3.upload_fileobj(f, output_bucket, output_key)
+			with open(input_filename, 'wb') as f:
+				s3.download_fileobj(input_bucket, input_key, f)
+			logger.info('s3 downloaded video')
+			crop(starttime,endtime,input_filename, output_filename)
+			logger.info('Cropping successfully done')
+			with open(output_filename, "rb") as f:
+				s3.upload_fileobj(f, output_bucket, output_key)
 
 			do_callback(msg, True)
 
