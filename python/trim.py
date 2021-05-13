@@ -4,6 +4,7 @@ from common import *
 from datetime import date
 import watchtower, logging
 import os
+from time import perf_counter
 
 logger.addHandler(watchtower.CloudWatchLogHandler(log_group='videotrimmer', stream_name=str(date.today()), use_queues=False,))
 
@@ -25,8 +26,10 @@ def crop(start,end,input,output):
 
 while(True):
 	msg = read_sqs(queue_url)
+	cleanup_files=[]
 	try:
 		if msg is not None:
+			t1_start = perf_counter() 
 			logger.info(msg)
 			jsn = json.loads(msg['Body'])
 			input_url = jsn['input_url']
@@ -39,14 +42,18 @@ while(True):
 			with open(input_filename, 'wb') as f:
 				s3.download_fileobj(input_bucket, input_key, f)
 			logger.info('s3 downloaded video')
+			cleanup_files.append(input_filename)
 			crop(starttime,endtime,input_filename, output_filename)
 			logger.info('Cropping successfully done')
+			cleanup_files.append(output_filename)
 			with open(output_filename, "rb") as f:
 				s3.upload_fileobj(f, output_bucket, output_key)
 
 			do_callback(msg, True)
 
 			delete_message(queue_url, msg['ReceiptHandle'])
+			t1_stop = perf_counter()
+			logger.info("Elapsed time during 1 iteration in seconds :" + (t1_stop-t1_start))
 		else:
 			print('no msg in queue')
 	except Exception as e: 
@@ -54,8 +61,12 @@ while(True):
 		logger.error(e)
 		if msg is not None:
 			change_message_visibility(queue_url, msg['ReceiptHandle'])
-			do_callback(msg, True)
 			logger.info('release sqs message')
+			do_callback(msg, True)
+	finally:
+		for f in cleanup_files:
+			delete_file(f)
+			
 	time.sleep(2)
 
 

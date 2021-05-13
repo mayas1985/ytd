@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 import boto3
@@ -22,6 +23,13 @@ def do_callback(msg, result):
 	except Exception as e: 
 		print(e)
 		logger.error(e)
+
+
+def delete_file(fname):
+	if os.path.exists(fname):
+		os.remove(fname)
+	else:
+		print("The file does not exist")
 
 
 def get_bucket_and_key_filepart(s3_url):

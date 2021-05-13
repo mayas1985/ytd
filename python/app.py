@@ -5,6 +5,7 @@ import boto3
 import youtube_dl
 import watchtower, logging
 from datetime import date
+from time import perf_counter
 
 logger.addHandler(watchtower.CloudWatchLogHandler(log_group='youtubedownloader', stream_name=str(date.today()), use_queues=False,))
 
@@ -44,18 +45,22 @@ def validate_file(file_name):
 
 while(True):
 	msg = read_sqs(queue_url)
+	cleanup_files=[]
 	try:
 		if msg is not None:
+			t1_start = perf_counter() 
 			logger.info(msg)
 			url = get_url(msg)
 			download_video(url, get_video_filename(msg))
 			logger.info('downloaded video')
 			validate_file(get_video_filename(msg))
-
+			cleanup_files.append(get_video_filename(msg))
 			with open(get_video_filename(msg), "rb") as f:
 				s3.upload_fileobj(f, bucket_name, get_video_filename(msg))
 			logger.info('s3 upload video')
 			delete_message(queue_url, msg['ReceiptHandle'])
+			t1_stop = perf_counter()
+			logger.info("Elapsed time during 1 iteration in seconds :" + (t1_stop-t1_start))
 		else:
 			print('no msg in queue')
 	except Exception as e: 
@@ -64,6 +69,11 @@ while(True):
 		if msg is not None:
 			change_message_visibility(queue_url, msg['ReceiptHandle'])
 			logger.info('release sqs message')
+
+	finally:
+		for f in cleanup_files:
+			delete_file(f)
+
 	time.sleep(2)
 	
 
