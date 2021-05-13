@@ -60,7 +60,7 @@ while(True):
 			logger.info('s3 upload video')
 			delete_message(queue_url, msg['ReceiptHandle'])
 			t1_stop = perf_counter()
-			logger.info("Elapsed time during 1 iteration in seconds :" + (t1_stop-t1_start))
+			logger.info("Elapsed time during 1 iteration in seconds :" + str(t1_stop-t1_start))
 		else:
 			print('no msg in queue')
 	except Exception as e: 
