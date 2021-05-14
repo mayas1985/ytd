@@ -39,17 +39,17 @@ def do_callback(msg, result):
 		print(e)
 		logger.error(e)
 
-def do_trim_callback(msg, result):
+def do_callback(msg, result):
 	try:
 		jsn = json.loads(msg['Body'])
 		#sns = jsn['callback_sns']
 		info = jsn['callback_payload']
 		info['status'] = result
-		request_body = {
-			"payload": json.dumps(info),
-			 "name": "TrimStatusReceived",
-			 "reconciliationId": 0
-		}
+		request_body = []
+		request_body["payload"] = json.dumps(info)
+		request_body["name"] = "TrimStatusReceived"
+		request_body["reconciliationId"] = 0
+		
 		logger.info({"sns": sns, "payload": request_body } )
 		response = sns.publish(
 			TopicArn=trim_sns_arn,
