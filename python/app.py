@@ -10,7 +10,7 @@ from time import perf_counter
 logger.addHandler(watchtower.CloudWatchLogHandler(log_group='youtubedownloader', stream_name=str(date.today()), use_queues=False,))
 
 
-queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/ytd-request-queue'
+queue_url = download_queue_url
 bucket_name = 'mealcast-video-ouput-dev'
 print(queue_url)
 

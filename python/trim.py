@@ -9,7 +9,7 @@ from time import perf_counter
 logger.addHandler(watchtower.CloudWatchLogHandler(log_group='videotrimmer', stream_name=str(date.today()), use_queues=False,))
 
 
-queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/vtrim-request-queue'
+queue_url = trim_queue_url
 bucket_name = 'mealcast-video-ouput-dev'
 
 def runBash(command):
@@ -49,7 +49,7 @@ while(True):
 			with open(output_filename, "rb") as f:
 				s3.upload_fileobj(f, output_bucket, output_key)
 
-			do_callback(msg, True)
+			do_trim_callback(msg, True)
 
 			delete_message(queue_url, msg['ReceiptHandle'])
 			t1_stop = perf_counter()
@@ -62,7 +62,7 @@ while(True):
 		if msg is not None:
 			change_message_visibility(queue_url, msg['ReceiptHandle'])
 			logger.info('release sqs message')
-			do_callback(msg, True)
+			do_trim_callback(msg, False)
 	finally:
 		for f in cleanup_files:
 			delete_file(f)

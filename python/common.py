@@ -4,9 +4,15 @@ import json
 import boto3
 
 import watchtower, logging
+
+
 # Create SQS client
 sqs = boto3.client('sqs')
 s3 = boto3.client('s3')
+sns = boto3.client('sns', region_name='us-east-1')
+trim_sns_arn = 'arn:aws:sns:us-east-1:749678555276:dev_trimcontent_received'
+download_queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/ytd-request-queue'
+trim_queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/vtrim-request-queue'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
@@ -14,15 +20,47 @@ logger = logging.getLogger(__file__)
 def do_callback(msg, result):
 	try:
 		jsn = json.loads(msg['Body'])
-		url = jsn['callback_url']
-		payload = jsn['callback_payload']
-		payload['trimStatus'] = result
-		logger.info({"url": url, "payload": payload } )
-		x = requests.put(url, data = payload)
-		logger.info(x)
+		#sns = jsn['callback_sns']
+		info = jsn['callback_payload']
+		info['status'] = result
+		request_body = {
+			"payload": json.dumps(info),
+			 "name": "TrimStatusReceived",
+			 "reconciliationId": 0
+		}
+		logger.info({"sns": sns, "payload": request_body } )
+		response = sns.publish(
+			TopicArn=trim_sns_arn,
+			Message=json.dumps({'default': json.dumps(request_body)}),
+			MessageStructure='json'
+		)
+		logger.info(response)
 	except Exception as e: 
 		print(e)
 		logger.error(e)
+
+def do_trim_callback(msg, result):
+	try:
+		jsn = json.loads(msg['Body'])
+		#sns = jsn['callback_sns']
+		info = jsn['callback_payload']
+		info['status'] = result
+		request_body = {
+			"payload": json.dumps(info),
+			 "name": "TrimStatusReceived",
+			 "reconciliationId": 0
+		}
+		logger.info({"sns": sns, "payload": request_body } )
+		response = sns.publish(
+			TopicArn=trim_sns_arn,
+			Message=json.dumps({'default': json.dumps(request_body)}),
+			MessageStructure='json'
+		)
+		logger.info(response)
+	except Exception as e: 
+		print(e)
+		logger.error(e)
+
 
 
 def delete_file(fname):
@@ -79,3 +117,6 @@ def delete_message(queue_url, receipt_handle):
 	response = sqs.delete_message(
 	QueueUrl=queue_url,
 	ReceiptHandle=receipt_handle)
+
+
+do_callback({'Body': '{\"input_url\":\"s3://dev-orchestration/Videos/Base/609e35d593354d2fffb47dd7/65a33e52-7fbc-4510-a819-1a6bea601060.mp4\",\"output_url\":\"s3://dev-orchestration/Videos/Preview/609e35d593354d2fffb47dd7/9fffa815-6ce2-46d8-9a34-df5debfca15c.mp4\",\"starttime\":\"00:00:00\",\"endtime\":\"00:00:14\",\"callback_sns\":null,\"callback_payload\":{\"recipeDetailWorkflowId\":\"609e35d593354d2fffb47dd7\"}}'}, True)
