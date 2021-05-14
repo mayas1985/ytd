@@ -30,16 +30,17 @@ def do_trim_callback(msg, result):
 		#sns = jsn['callback_sns']
 		info = jsn['callback_payload']
 		info['status'] = result
-		request_body = []
-		request_body["payload"] = json.dumps(info)
-		request_body["name"] = "TrimStatusReceived"
-		request_body["reconciliationId"] = 0
+		request_body = {
+			"payload": json.dumps(info),
+			 "name": "TrimStatusReceived",
+			 "reconciliationId": 0
+		}
 		
 		logger.info({"sns": sns, "payload": request_body } )
 		response = sns.publish(
 			TopicArn=trim_sns_arn,
-			Message=json.dumps({'default': json.dumps(request_body)}),
-			MessageStructure='json'
+			Message=json.dumps(request_body)
+			
 		)
 		logger.info(response)
 	except Exception as e: 
@@ -102,3 +103,4 @@ def delete_message(queue_url, receipt_handle):
 	response = sqs.delete_message(
 	QueueUrl=queue_url,
 	ReceiptHandle=receipt_handle)
+#do_trim_callback({'Body': '{\"input_url\":\"s3://dev-orchestration/Videos/Base/609e35d593354d2fffb47dd7/65a33e52-7fbc-4510-a819-1a6bea601060.mp4\",\"output_url\":\"s3://dev-orchestration/Videos/Preview/609e35d593354d2fffb47dd7/9fffa815-6ce2-46d8-9a34-df5debfca15c.mp4\",\"starttime\":\"00:00:00\",\"endtime\":\"00:00:14\",\"callback_sns\":null,\"callback_payload\":{\"recipeDetailWorkflowId\":\"609e35d593354d2fffb47dd7\"}}'}, True)
