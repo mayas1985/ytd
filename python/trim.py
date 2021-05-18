@@ -16,7 +16,7 @@ def runBash(command):
 	os.system(command)
 
 def crop(start,end,input,output):
-	str = "ffmpeg -i " + input + " -ss  " + start + " -to " + end + " -c:v copy -c:a copy -y " + output
+	str = "ffmpeg -ss " + start + " -to  " + end + " -i " + input + " -vcodec copy -acodec copy -avoid_negative_ts make_zero -y " + output
 	logger.info(str)
 	runBash(str)
 
