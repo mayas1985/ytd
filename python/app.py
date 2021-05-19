@@ -6,6 +6,7 @@ import youtube_dl
 import watchtower, logging
 from datetime import date
 from time import perf_counter
+from env import *
 
 logger.addHandler(watchtower.CloudWatchLogHandler(log_group='youtubedownloader', stream_name=str(date.today()), use_queues=False,))
 

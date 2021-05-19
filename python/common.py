@@ -10,9 +10,9 @@ import watchtower, logging
 sqs = boto3.client('sqs')
 s3 = boto3.client('s3')
 sns = boto3.client('sns', region_name='us-east-1')
-trim_sns_arn = 'arn:aws:sns:us-east-1:749678555276:dev_trimcontent_received'
-download_queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/ytd-request-queue'
-trim_queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/vtrim-request-queue'
+#trim_sns_arn = 'arn:aws:sns:us-east-1:749678555276:dev_trimcontent_received'
+#download_queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/ytd-request-queue'
+#trim_queue_url = 'https://sqs.us-west-1.amazonaws.com/749678555276/vtrim-request-queue'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__file__)
