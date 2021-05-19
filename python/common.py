@@ -2,6 +2,7 @@ import os
 import requests
 import json
 import boto3
+from env import *
 
 import watchtower, logging
 
