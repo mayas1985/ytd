@@ -34,13 +34,6 @@ def download_video(url, filename):
 	with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 		ydl.download([url])
 
-
-	
-def get_video_filename(message):
-	return message['MessageId'] + ".mp4"
-	
-
-
 def validate_file(file_name):
 	pass
 
@@ -51,13 +44,17 @@ while(True):
 		if msg is not None:
 			t1_start = perf_counter() 
 			logger.info(msg)
-			url = get_url(msg)
-			download_video(url, get_video_filename(msg))
+			jsn = json.loads(msg['Body'])
+			yt_url = jsn['yt_url']
+			output_url = jsn['output_url']
+			output_bucket, output_key, output_filename = get_bucket_and_key_filepart(output_url)
+			download_video(yt_url, output_filename)
 			logger.info('downloaded video')
-			validate_file(get_video_filename(msg))
-			cleanup_files.append(get_video_filename(msg))
-			with open(get_video_filename(msg), "rb") as f:
-				s3.upload_fileobj(f, bucket_name, get_video_filename(msg))
+			validate_file(output_filename)
+			cleanup_files.append(output_filename)
+			
+			with open(output_filename, "rb") as f:
+				s3.upload_fileobj(f, output_bucket, output_filename)
 			logger.info('s3 upload video')
 			delete_message(queue_url, msg['ReceiptHandle'])
 			t1_stop = perf_counter()
