@@ -23,6 +23,8 @@ for tag in response['Tags']:
         download_queue_url = tag['Value']
     elif tag['Key']=='trim_queue_url':
         trim_queue_url = tag['Value']
+    elif tag['Key']=='ytd_sns_arn':
+        ytd_sns_arn = tag['Value']
 
 print(trim_sns_arn, download_queue_url, trim_queue_url)
 if (trim_sns_arn == None or download_queue_url == None or trim_queue_url == None):

@@ -54,8 +54,12 @@ while(True):
 			cleanup_files.append(output_filename)
 			
 			with open(output_filename, "rb") as f:
-				s3.upload_fileobj(f, output_bucket, output_filename)
+				s3.upload_fileobj(f, output_bucket, output_key)
+				#s3.upload_fileobj(f, output_bucket, output_filename)
 			logger.info('s3 upload video')
+            
+            do_ytd_callback(msg, True)
+            
 			delete_message(queue_url, msg['ReceiptHandle'])
 			t1_stop = perf_counter()
 			logger.info("Elapsed time during 1 iteration in seconds :" + str(t1_stop-t1_start))
@@ -67,6 +71,7 @@ while(True):
 		if msg is not None:
 			change_message_visibility(queue_url, msg['ReceiptHandle'])
 			logger.info('release sqs message')
+            do_ytd_callback(msg, False)
 
 	finally:
 		for f in cleanup_files:

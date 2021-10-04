@@ -20,7 +20,23 @@ logger = logging.getLogger(__file__)
 
 def do_ytd_callback(msg, result):
 	try:
-		logger.info("callback not implemented yet")
+		jsn = json.loads(msg['Body'])
+		#sns = jsn['callback_sns']
+		info = jsn['callback_payload']
+		info['status'] = result
+		request_body = {
+			"payload": json.dumps(info),
+			 "name": "YTDStatusReceived",
+			 "reconciliationId": 0
+		}
+		
+		logger.info({"sns": sns, "payload": request_body } )
+		response = sns.publish(
+			TopicArn=ytd_sns_arn,
+			Message=json.dumps(request_body)
+			
+		)
+		logger.info(response)
 	except Exception as e: 
 		print(e)
 		logger.error(e)
